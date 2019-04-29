@@ -1,0 +1,174 @@
+/* project2.css */
+
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
+html {
+	height: 100%;
+	display: table;
+    margin: auto;
+}
+
+body {
+	top: 500px;
+	width: 100%;
+	background-color: #20262c;
+	display: table;
+    content-align: middle;
+}
+
+#header {
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-column: 1 / 3;
+}
+
+#pageTitle {
+	margin: 5px;
+	padding: 5px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 800;
+	font-size: 20pt;
+}
+
+#pageTitleAlmost {
+	color: #f2f2f2;
+}
+
+#pageTitleAPE {
+	color: #48b4ea;
+}
+
+#planSelectorDiv {
+	text-align: right;
+	margin: 5px;
+	padding: 5px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 800;
+	font-size: 15pt;
+	color: #f2f2f2;
+}
+
+#selectPlan {
+	height: 25px;
+	width: 200px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 800;
+	margin-right: 10px;
+}
+
+
+
+#upperLeft {
+	display: flex;
+	flex-direction: column;
+}
+
+.panel {
+	vertical-align: middle;
+	top: 150px;
+	margin: auto;
+	display: table-cell;
+	padding: 5px;
+	align-items: center;
+}
+
+.panelTitle {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 800;
+	font-size: 11pt;
+	color: #f2f2f2;
+}
+
+.panelText {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 500;
+	font-size: 11pt;
+	color: #e0e0e0;
+}
+
+.planComponent {
+	background-color: #ff531a;
+}
+
+.planComponentTitle {
+	outline: none;
+	cursor: pointer;
+}
+
+.planComponentClasses {
+	display: flex;
+	flex-direction: column;
+}
+
+#upperRight {
+	display: flex;
+	flex-direction: column;
+}
+
+.year {
+	display: flex;
+	flex-direction: row;
+}
+
+@media only screen and (max-width: 900px) {
+	.year {
+		flex-direction: column;
+	}
+}
+
+.semester {
+	display: grid;
+	grid-auto-rows: min-content;
+	flex-grow: 1;
+	flex-basis: 0;
+}
+
+.pastSemester {
+	background-color: #1891cd;
+}
+
+.futureSemester {
+	background-color: #008a00;
+}
+
+.semesterHours {
+	text-align: right;
+}
+
+.semesterClasses {
+	left: 5px;
+	top: 30px;
+	grid-column: 1 / 3;
+}
+
+#submitButton {
+	margin-top: 5px;
+}
+
+#courseLinks {
+	background-color: #b31aff;
+	margin: 5px;
+	padding: 5px;
+	display: flex;
+	flex-direction: column;
+}
+
+#lowerRight {
+	/*height: 100%;*/
+}
+
+#catalog {
+	display: grid;
+	grid-auto-rows: min-content;
+	flex-grow: 1;
+	flex-basis: 0;
+	background-color: #008a00;
+}
+
+#catalogSearch {
+	text-align: right;
+}
+
+#catalogResults {
+	grid-column: 1 / 3;
+}
