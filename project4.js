@@ -12,7 +12,7 @@ var termDayMap = {
 }
 
 class PlanCourse {
-	constructor(term, year, id, name, hours) {
+	constructor(term, year, id, name, hours,planned) {
 		this.term = term;
 		this.year = year;
 		this.academicYear = year;
@@ -26,7 +26,8 @@ class PlanCourse {
 	}
 	
 	render() {
-		return '<div class="panelText semesterClass">' + this.id + ' ' + this.name + '</div>';
+		let plan = 'plan';
+		return `<div class="panelText semesterClass" id="${this.id}-plan" draggable="true" ondragstart="drag(event,'plan')" onclick="deleteMe(event)">${this.id} ${this.name}</div>`;
 	}
 }
 
@@ -37,6 +38,26 @@ class Plan {
 		this.major = major;
 		this.student = student;
 		this.courses = courses;
+	}
+
+	getCourse(id){
+		for(const i in this.courses) {
+			if(this.courses[i].id == id){
+				return courses[i];
+			}
+		}
+	}
+
+	removeCourse(id){
+		for(const i in this.courses) {
+			if(this.courses[i].id == id){
+				this.courses.splice(i, 1);
+			}
+		}
+	}
+
+	addCourse(course){
+		this.courses.push(course);
 	}
 	
 	toYears() {
@@ -106,6 +127,7 @@ class Term {
 		var coursesHtml = '';
 		
 		for(const i in this.courses) {
+			//console.log("plan: ", this.courses[i]);
 			coursesHtml += this.courses[i].render();
 		}
 		
@@ -123,7 +145,7 @@ class Term {
 	<div class="panelTitle semesterHours">
 		Hours: ` + this.hours + `
 	</div>
-	<div class="semesterClasses">
+	<div class="semesterClasses" ondrop="drop(event)" ondragover="allowDrop(event)">
 		` + coursesHtml + `
 	</div>
 </div>`;
@@ -191,13 +213,15 @@ class RequirementCategory {
 	addCourse(id) {
 		this.courses.push(allCourses[id]);
 	}
-	
+
 	render() {
 		let coursesHtml = '';
 		
 		for (const key in this.courses) {
-			coursesHtml += this.courses[key].render();
+				coursesHtml += this.courses[key].render();
 		}
+
+		//console.log(coursesHtml);
 		
 		return `
 <div class="panel planComponent">
@@ -212,11 +236,12 @@ class RequirementCategory {
 }
 
 class Course {
-	constructor(id, name, description, credits) {
+	constructor(id, name, description, credits,planned) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.credits = credits;
+		this.planned = planned;
 		
 		this.searchString = (id + ' ' + name + ' ' + description).toLowerCase();
 	}
@@ -224,9 +249,17 @@ class Course {
 	matches(query) {
 		return this.searchString.includes(query);
 	}
+
+	getPlanned(){
+		if(this.planned){
+			return 'planned';
+		} else {
+			return ''
+		}
+	}
 	
 	render() {
-		return '<div class="panelText planComponentClass">' + this.id + ' ' + this.name + '</div>';
+		return `<div class="panelText planComponentClass ${this.getPlanned()}" id="${this.id}-other" draggable="true" ondragstart="drag(event,'other')">${this.id} ${this.name}</div>`;
 	}
 }
 
@@ -252,7 +285,7 @@ function loadPlan() {
 		for(const key in planCourses) {
 			currentPlanCourse = planCourses[key];
 			currentCatalogCourse = catalogCourses[key];
-			courses.push(new PlanCourse(currentPlanCourse['term'], currentPlanCourse['year'], currentPlanCourse['id'], currentCatalogCourse['name'], currentCatalogCourse['credits']));
+			courses.push(new PlanCourse(currentPlanCourse['term'], currentPlanCourse['year'], currentPlanCourse['id'], currentCatalogCourse['name'], currentCatalogCourse['credits'],true));
 		}
 
 		currentPlan = new Plan(planData["name"], planData["currYear"], planData["major"], planData["student"], courses);
@@ -267,14 +300,13 @@ function loadPlan() {
 			requirements.addCategory(categoryName);
 			
 			for(const key in categoryCourses) {
+				checkPlanned(categoryCourses[key], currentPlan);
 				requirements.addCourse(categoryCourses[key], categoryName);
 			}
 		}
 		
 		// render stuff
-		//document.getElementById("upperRight").innerHTML = lastPlan.render();
 		$("#upperLeft").html(requirements.render());
-		//$("#upperLeft").html('test test test');
 		
 		// render selected plan
 		$("#upperRight").html(currentPlan.render());
@@ -320,95 +352,102 @@ function planRequestCallback() {
 	}
 }
 
-function bbCallback() {
-	if(bbRequest.readyState == 4) {
-		let parsed = JSON.parse(bbRequest.responseText);
-		
-		if("year" in bbParams) {
-			if("make" in bbParams) {
-				let modelsHtml = '';
-				
-				for(const key in parsed) {
-					let car = parsed[key]
-					modelsHtml += '<option value="' + car['id'] + '">' + car['name'] + '</option>';
-				}
-				
-				$("#bbModel").html(modelsHtml);
-			} else {
-				let makesHtml = '';
-				
-				for(const key in parsed) {
-					let car = parsed[key]
-					makesHtml += '<option value="' + car['id'] + '">' + car['name'] + '</option>';
-				}
-				
-				$("#bbMake").html(makesHtml);
-			}
-		} else {
-			let yearsHtml = '';
-			
-			for(const key in parsed) {
-				let year = parsed[key]
-				yearsHtml += '<option value="' + year + '">' + year + '</option>';
-			}
-			
-			$("#bbYear").html(yearsHtml);
-		}
-	}
-}
-
-function bbUpdate() {
-	bbParams = {
-		'fmt': 'json'
-	};
-	
-	let year = $("#bbYear").val();
-	
-	if(year != null) {
-		bbParams['year'] = year;
-		
-		let make = $("#bbMake").val();
-		
-		if(make != null) {
-			bbParams['make'] = make;
-		}
-	}
-	
-	bbRequest = new XMLHttpRequest();
-	bbRequest.onreadystatechange = bbCallback;
-	bbRequest.open('GET', '/~gallaghd/ymm/ymmdb.php?' + jQuery.param(bbParams), true);
-	bbRequest.send();
-}
-
 function renderPlan() {
 	$(".quadrant").fadeTo(200, 0, function() {
-		//console.log(1);
 		loadPlan();
-		//console.log(2);
 		$(".quadrant").fadeTo(200, 1);
-		//console.log(3);
 	});
 }
 
-var allCourses;
-/*var plans = {};
-var lastPlan;
-var planCourses;
-
-var reqsRequest = new XMLHttpRequest();
-reqsRequest.onreadystatechange = requestCallback;
-reqsRequest.open('GET', '/~gallaghd/cs3220/termProject/getRequirements.php', true);
-
-var planRequest = new XMLHttpRequest();
-planRequest.onreadystatechange = planRequestCallback;
-planRequest.open('GET', 'getCombined.php', true);
-
-var bbRequest;
-var bbParams;*/
-
 $(document).ready(function() {
-	//bbUpdate();
-	//planRequest.send();
 	loadPlan();
 	$("body").fadeTo(800, 1);
 });
+
+
+function allowDrop(ev) {
+	ev.preventDefault();
+}
+  
+function drag(ev) {
+	ev.dataTransfer.setData("text", ev.target.id);
+}
+  
+function drop(ev) {
+
+	// console.log(item.parentNode.parentNode.innerText);
+	// console.log(item.parentNode.parentNode.innerText.split(' ').join(',').split('\n').join(',').split(','));
+
+	ev.preventDefault();
+	var data = ev.dataTransfer.getData("text");
+	var origin = ev.dataTransfer.getData("origin");
+	item = document.getElementById(data);
+	if(item.id.includes("plan")){
+		updateTimes(item, ev.target);
+		ev.target.appendChild(item);
+	} else{
+		if(!document.getElementById(data).className.includes('planned')){
+			addCourse(item,ev.target);
+			var myc = item.cloneNode(true);
+			myc.className = 'panelText semesterClass';
+			planItems(item.id);
+			myc.id = item.id.replace('-other','-plan');
+			myc.addEventListener("click", function(){
+				deleteMe(window.event);
+			  });
+			ev.target.appendChild(myc);
+		} else {
+			window.alert("you have already planned this course");
+		}
+	}
+}
+
+function updateTimes(item, target){
+	courseId = item.id.replace('-plan','');
+	let course = allCourses[courseId];
+	let times = target.parentNode.innerText.split(' ').join(',').split('\n').join(',').split(',');
+	currentPlan.addCourse(new PlanCourse(times[0],times[1],course.id,course.name,course.credits,true));
+	currentPlan.removeCourse(courseId);
+}
+
+function addCourse(item,target){
+	courseId = item.id.replace('-other','');
+	let course = allCourses[courseId];
+	let times = target.parentNode.innerText.split(' ').join(',').split('\n').join(',').split(',');
+	currentPlan.addCourse(new PlanCourse(times[0],times[1],course.id,course.name,course.credits,true));
+}
+
+function checkPlanned(course, currentPlan){
+	for(var i in currentPlan.courses){
+		if(currentPlan.courses[i].id === course){
+			allCourses[course].planned = 'planned';
+		}
+	}
+}
+
+function deleteMe(ev) {
+	let course = new PlanCourse()
+	var item = document.getElementById(ev.target.id);
+	currentPlan.removeCourse(ev.target.id.replace('-plan',''));
+	unplanItems(item.id);
+	item.parentNode.removeChild(item);
+}
+
+function unplanItems(planId){
+	var items = document.getElementsByClassName('panelText planComponentClass planned ');
+	for (let thing of items) {
+		if(thing.id == planId.replace('-plan','-other')){
+			thing.className=thing.className.replace(' planned','');
+		}
+	}
+}
+
+function planItems(planId){
+	var items = document.getElementsByClassName('panelText planComponentClass');
+	for (let thing of items) {
+		if(thing.id == planId){
+			thing.className=thing.className + ' planned';
+		}
+	}
+}
+

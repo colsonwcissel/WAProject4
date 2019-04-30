@@ -79,28 +79,6 @@ if(empty($_SESSION['user'])) {
 		<div id="upperRight" class="quadrant">
 		</div>
 		<div id="lowerLeft" class="quadrant">
-			<!--<div id="courseLinks" class="panel">
-				<div class="panelTitle">
-					bluuuuuee boooookk
-				</div>
-				<div class="panelText">
-					<div>
-						Year
-						<select id="bbYear" onchange="bbUpdate()">
-						</select>
-					</div>
-					<div>
-						Make
-						<select id="bbMake" onchange="bbUpdate()">
-						</select>
-					</div>
-					<div>
-						Model
-						<select id="bbModel">
-						</select>
-					</div>
-				</div>
-			</div>-->
 		</div>
 		<div id="lowerRight" class="quadrant">
 			<div id="catalog" class="panel">

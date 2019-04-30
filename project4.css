@@ -94,10 +94,7 @@ body {
 	cursor: pointer;
 }
 
-.planComponentClasses {
-	display: flex;
-	flex-direction: column;
-}
+
 
 #upperRight {
 	display: flex;
@@ -138,6 +135,8 @@ body {
 	left: 5px;
 	top: 30px;
 	grid-column: 1 / 3;
+	min-height: 20px;
+	min-width: 20px;
 }
 
 #submitButton {
@@ -172,4 +171,16 @@ body {
 
 #catalogResults {
 	grid-column: 1 / 3;
+}
+
+.planned{
+	background-color:  rgba(32, 38, 44,.3);
+	margin: 3px;
+	border-radius: 5px;
+	padding:2px;
+}
+
+.planComponentClass{
+	padding:2px;
+	margin: 3px;
 }
